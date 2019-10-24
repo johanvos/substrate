@@ -30,6 +30,7 @@ package com.gluonhq.substrate;
 import com.gluonhq.substrate.model.ProcessPaths;
 import com.gluonhq.substrate.model.ProjectConfiguration;
 import com.gluonhq.substrate.model.Triplet;
+import com.gluonhq.substrate.target.AndroidTargetConfiguration;
 import com.gluonhq.substrate.target.DarwinTargetConfiguration;
 import com.gluonhq.substrate.target.IosTargetConfiguration;
 import com.gluonhq.substrate.target.LinuxTargetConfiguration;
@@ -173,12 +174,21 @@ public class SubstrateDispatcher {
         targetConfiguration.runUntilEnd(paths, config);
     }
 
-    private static TargetConfiguration getTargetConfiguration(Triplet targetTriplet) {
-        switch( targetTriplet.getOs() ) {
-            case Constants.OS_LINUX : return new LinuxTargetConfiguration();
-            case Constants.OS_DARWIN: return new DarwinTargetConfiguration();
-            case Constants.OS_IOS: return new IosTargetConfiguration();
-            default: return null;
+    public static TargetConfiguration getTargetConfiguration(Triplet targetTriplet) {
+        switch (targetTriplet.getOs()) {
+            case Constants.OS_LINUX:
+                switch (targetTriplet.getVendor()) {
+                    case Constants.VENDOR_ANDROID:
+                        return new AndroidTargetConfiguration();
+                    default:
+                        return new LinuxTargetConfiguration();
+                }
+            case Constants.OS_DARWIN:
+                return new DarwinTargetConfiguration();
+            case Constants.OS_IOS:
+                return new IosTargetConfiguration();
+            default:
+                return null;
         }
     }
 

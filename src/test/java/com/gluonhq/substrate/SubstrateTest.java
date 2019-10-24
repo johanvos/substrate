@@ -28,9 +28,13 @@
 package com.gluonhq.substrate;
 
 import com.gluonhq.substrate.model.Triplet;
+import com.gluonhq.substrate.target.AndroidTargetConfiguration;
+import com.gluonhq.substrate.target.LinuxTargetConfiguration;
+import com.gluonhq.substrate.target.TargetConfiguration;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SubstrateTest {
 
@@ -45,5 +49,20 @@ class SubstrateTest {
         assertEquals(triplet.getArch(), Constants.ARCH_AMD64);
         assertEquals(triplet.getVendor(), Constants.VENDOR_APPLE);
         assertEquals(triplet.getOs(), Constants.OS_DARWIN);
+
+        triplet = new Triplet(Constants.Profile.ANDROID);
+        assertEquals(triplet.getArch(), Constants.ARCH_ARM64);
+        assertEquals(triplet.getVendor(), Constants.VENDOR_ANDROID);
+        assertEquals(triplet.getOs(), Constants.OS_LINUX);
+    }
+
+    @Test
+    void testTargetConfigurations () {
+        Triplet triplet = new Triplet(Constants.Profile.LINUX);
+        TargetConfiguration tc = SubstrateDispatcher.getTargetConfiguration(triplet);
+        assertTrue(tc instanceof LinuxTargetConfiguration);
+        triplet = new Triplet(Constants.Profile.ANDROID);
+        tc = SubstrateDispatcher.getTargetConfiguration(triplet);
+        assertTrue(tc instanceof AndroidTargetConfiguration);
     }
 }

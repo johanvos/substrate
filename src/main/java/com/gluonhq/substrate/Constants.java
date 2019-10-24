@@ -45,6 +45,7 @@ public class Constants {
      */
     public static final String VENDOR_APPLE = "apple";
     public static final String VENDOR_LINUX = "linux";
+    public static final String VENDOR_ANDROID = "android";
 
     /**
      * Triplet OS
@@ -60,7 +61,8 @@ public class Constants {
         LINUX, // (x86_64-linux-linux)
         MACOS, // (x86_64-apple-darwin)
         IOS,   // (aarch64-apple-ios)
-        IOS_SIM;   // (x86_64-apple-ios)
+        IOS_SIM,   // (x86_64-apple-ios)
+        ANDROID; // (aarch64-linux-android
     };
 
     /**
