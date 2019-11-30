@@ -111,6 +111,15 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         }
         compileBuilder.command().add("-H:ReflectionConfigurationFiles=" + createReflectionConfig(suffix));
         compileBuilder.command().add("-H:JNIConfigurationFiles=" + createJNIConfig(suffix));
+        String nativeImageParams = System.getenv("nativeimageparams");
+        System.err.println("NIP = "+nativeImageParams);
+        if (nativeImageParams != null) {
+            String[] niParams = nativeImageParams.split(",");
+            for (String p : niParams) {
+                System.err.println("adding "+p);
+                compileBuilder.command().add(p);
+            }
+        }
         if (projectConfiguration.isVerbose()) {
             compileBuilder.command().add("-H:+PrintAnalysisCallTree");
         }
