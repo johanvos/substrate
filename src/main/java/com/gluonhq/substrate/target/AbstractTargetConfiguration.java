@@ -295,7 +295,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
 
     // --- private methods
 
-    private boolean compileAdditionalSources()
+    protected boolean compileAdditionalSources()
             throws IOException, InterruptedException {
 
         String appName = projectConfiguration.getAppName();
