@@ -129,6 +129,9 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         if (clang == null) throw new IOException ("You specified an android ndk, but it doesn't contain "+ndk+"/toolchains/llvm/prebuilt/linux-x86_64/bin/clang");
         if (java8Home == null) throw new IOException("You need an ancient JDK (1.8). Set the environment property JAVA8_HOME");
         if (sdk == null) throw new IOException ("Can't find an Android SDK on your system. Set the environment property ANDROID_SDK");
+
+        compileAdditionalSources();
+
         super.link();
 
         Path sdkPath = Paths.get(sdk);
