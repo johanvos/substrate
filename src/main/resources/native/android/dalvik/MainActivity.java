@@ -9,6 +9,10 @@ import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
+
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -19,6 +23,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback,
         SurfaceHolder.Callback2 {
@@ -33,10 +38,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
 
     boolean graalStarted = false;
 
+    private static InputMethodManager imm;
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Log.v(TAG, "onCreate start, using Android Logging v1");
         System.err.println("onCreate called, writing this to System.err");
         super.onCreate(savedInstanceState);
@@ -54,6 +61,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
         mViewGroup.addView(mView);
         setContentView(mViewGroup);
         instance = this;
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         Log.v(TAG, "onCreate done");
     }
 
@@ -123,6 +131,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback,
         }
         Log.v(TAG, "surfaceredraw needed (and wait) done");
     }
+
+    private static void showIME() {
+        Log.v(TAG, "Called notify_showIME, DONT show input for imm = "+imm+", mv = "+mView);
+        mView.requestFocus();
+        boolean answer = imm.showSoftInput(mView, 0);
+        Log.v(TAG, "Done calling notify_showIME, result = "+answer);
+    }
+
+    private static void hideIME() {
+        Log.v(TAG, "Called notify_hideIME");
+        mView.requestFocus();
+        boolean answer = imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+        Log.v(TAG, "Done Calling notify_hideIME, answer = "+answer);
+    }
+
 
     private native void startGraalApp();
     private native long surfaceReady(Surface surface, float density);

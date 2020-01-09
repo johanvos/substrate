@@ -23,6 +23,14 @@ extern void androidJfx_setDensity(float nativeDensity);
 extern void androidJfx_gotTouchEvent (int count, int* actions, int* ids, int* xs, int* ys, int primary);
 extern int to_jfx_touch_action(int state);
 
+jclass activityClass;
+jobject activity;
+jmethodID activity_showIME;
+jmethodID activity_hideIME;
+
+
+JavaVM *androidVM;
+JNIEnv* androidEnv;
 ANativeWindow *window;
 jfloat density;
 char* appDataDir;
@@ -55,10 +63,27 @@ char** createArgs() {
     argsize++;
     return result;
 }
+
+void registerMethodHandles (JNIEnv *aenv) {
+    activityClass = (*aenv)->NewGlobalRef(aenv, 
+          (*aenv)->FindClass(aenv, "com/gluonhq/helloandroid/MainActivity"));
+    activity_showIME = (*aenv)->GetStaticMethodID(aenv, activityClass, "showIME", "()V");
+    activity_hideIME = (*aenv)->GetStaticMethodID(aenv, activityClass, "hideIME", "()V");
+}
+
+int JNI_OnLoad(JavaVM *vm, void *reserved) {
+    androidVM = vm;
+    (*vm)->GetEnv(vm, (void **) &androidEnv, JNI_VERSION_1_6);
+    registerMethodHandles(androidEnv);
+    LOGE(stderr, "AndroidVM called into native, vm = %p, androidEnv = %p",androidVM, androidEnv);
+    return JNI_VERSION_1_6;
+}
+
 // === called from DALVIK. Minize work/dependencies here === // 
 
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_startGraalApp
-(JNIEnv *env, jobject activity) {
+(JNIEnv *env, jobject activityObj) {
+    activity = activityObj;
     LOGE(stderr, "Start GraalApp, DALVIK env at %p\n", env);
     LOGE(stderr, "PAGESIZE = %ld\n", sysconf(_SC_PAGE_SIZE));
     int ev = (*env)->GetVersion(env);
@@ -107,6 +132,8 @@ JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeSurfaceR
     androidJfx_requestGlassToRedraw();
 }
 
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextFieldSkinAndroid_showSoftwareKeyboard();
 
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeGotTouchEvent
 (JNIEnv *env, jobject activity, jint jcount, jintArray jactions, jintArray jids, jintArray jxs, jintArray jys) {
@@ -237,5 +264,27 @@ fprintf(stderr, "In dummy JNI_OnLoad_javafx_font\n");
 #else
     return JNI_VERSION_1_4;
 #endif
+}
+
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextFieldSkinAndroid_showSoftwareKeyboard
+(JNIEnv *env, jobject textfieldskin) {
+    JNIEnv *menv;
+    (*androidVM)->AttachCurrentThread(androidVM, (JNIEnv **) &menv, NULL);
+    LOGE(stderr, "now I have to show keyboard, invoke method %p on env %p (old = %p)\n", activity_showIME, menv, androidEnv); 
+    (*menv)->CallStaticVoidMethod(menv, activityClass, activity_showIME);
+    (*androidVM)->DetachCurrentThread(androidVM);
+    LOGE(stderr, "I did show keyboard\n"); 
+}
+
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextFieldSkinAndroid_hideSoftwareKeyboard
+(JNIEnv *env, jobject textfieldskin) {
+    JNIEnv *menv;
+    (*androidVM)->AttachCurrentThread(androidVM, (JNIEnv **) &menv, NULL);
+    LOGE(stderr, "now I have to hide keyboard, invoke method %p on env %p (old = %p)\n", activity_hideIME, menv, androidEnv); 
+    (*menv)->CallStaticVoidMethod(menv, activityClass, activity_hideIME);
+    (*androidVM)->DetachCurrentThread(androidVM);
+    LOGE(stderr, "I did hide keyboard\n"); 
 }
 
