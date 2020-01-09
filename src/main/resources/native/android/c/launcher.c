@@ -21,6 +21,7 @@ extern void androidJfx_requestGlassToRedraw();
 extern void androidJfx_setNativeWindow(ANativeWindow* nativeWindow);
 extern void androidJfx_setDensity(float nativeDensity);
 extern void androidJfx_gotTouchEvent (int count, int* actions, int* ids, int* xs, int* ys, int primary);
+extern void androidJfx_gotKeyEvent (int action, int key);
 extern int to_jfx_touch_action(int state);
 
 jclass activityClass;
@@ -45,9 +46,10 @@ const char * origargs[] = {
         "-Dembedded=monocle",
         "-Dglass.platform=Monocle",
         "-Djavafx.verbose=true",
+        "-Dmonocle.input.traceEvents.verbose=true",
         "-Dprism.verbose=true"};
 
-int argsize = 6;
+int argsize = 7;
 
 char** createArgs() {
     int origSize = sizeof(origargs)/sizeof(char*);
@@ -166,8 +168,9 @@ JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeGotTouch
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeGotKeyEvent
 (JNIEnv *env, jobject activity, jint action, jint keyCode) {
     LOGE(stderr, "Native Dalvik layer got key event, pass to native Graal layer...");
+    androidJfx_gotKeyEvent(action, keyCode);
     // Java_com_sun_glass_ui_android_DalvikInput_onKeyEventNative(NULL, NULL, action, keyCode);
-    LOGE(stderr, "Native Dalvik layer got key event, TODO!!!");
+    LOGE(stderr, "Native Dalvik layer got key event!!!");
 }
 
 // == expose window functionality to JavaFX native code == //
