@@ -21,7 +21,7 @@ extern void androidJfx_requestGlassToRedraw();
 extern void androidJfx_setNativeWindow(ANativeWindow* nativeWindow);
 extern void androidJfx_setDensity(float nativeDensity);
 extern void androidJfx_gotTouchEvent (int count, int* actions, int* ids, int* xs, int* ys, int primary);
-extern void androidJfx_gotKeyEvent (int action, int key, char* chars, int count, int mods);
+extern void androidJfx_gotKeyEvent (int action, int key, jchar* chars, int count, int mods);
 extern int to_jfx_touch_action(int state);
 
 jclass activityClass;
@@ -170,8 +170,12 @@ JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeGotTouch
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativedispatchKeyEvent
 (JNIEnv *env, jobject activity, jint action, jint keyCode, jcharArray jchars, jint cc, jint modifiers) {
     LOGE(stderr, "Native Dalvik layer has to dispatch key event, pass to native Graal layer with %d chars...", cc);
-    char *kars = (*env)->GetCharArrayElements(env, jchars, 0);
-    androidJfx_gotKeyEvent(action, keyCode, jchars, cc, modifiers);
+    jchar *kars = (*env)->GetCharArrayElements(env, jchars, 0);
+int realcount = (*env)->GetArrayLength(env, jchars);
+LOGE(stderr, "passed count = %d and realcount = %d\n", cc, realcount);
+LOGE(stderr, "c0 = %c and c1 = %c\n", kars[0], kars[1]);
+LOGE(stderr, "c0 = %x and c1 = %x\n", kars[0], kars[1]);
+    androidJfx_gotKeyEvent(action, keyCode, kars, cc, modifiers);
 }
 
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeGotKeyEvent
