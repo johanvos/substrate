@@ -158,6 +158,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         Files.createDirectories(dalvikLibArm64Path);
         Path androidManifestPath = dalvikPath.resolve("AndroidManifest.xml");
         FileOps.copyResource("/native/android/dalvik/MainActivity.java", dalvikSrcPath.resolve("MainActivity.java"));
+        FileOps.copyResource("/native/android/dalvik/KeyCode.java", dalvikSrcPath.resolve("KeyCode.java"));
         FileOps.copyResource("/native/android/AndroidManifest.xml", dalvikPath.resolve("AndroidManifest.xml"));
         FileOps.replaceInFile(dalvikPath.resolve("AndroidManifest.xml"), "A HelloGraal", projectConfiguration.getAppName());
 
@@ -165,7 +166,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
 
         ProcessRunner processRunner = new ProcessRunner(java8Home + "/bin/javac", "-d", dalvikClassPath.toString(), "-source", "1.7",
                 "-target", "1.7", "-cp", dalvikSrcPath.toString(), "-bootclasspath", androidJar,
-                dalvikSrcPath.resolve("MainActivity.java").toString());
+                dalvikSrcPath.resolve("MainActivity.java").toString(), dalvikSrcPath.resolve("KeyCode.java").toString());
         processResult = processRunner.runProcess("dalvikCompilation");
         if (processResult != 0)
             return false;
