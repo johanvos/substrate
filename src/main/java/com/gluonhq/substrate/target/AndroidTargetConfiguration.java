@@ -156,7 +156,6 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         Files.createDirectories(dalvikLibPath);
         Files.createDirectories(dalvikLibArm64Path);
         Path androidManifestPath = dalvikPath.resolve("AndroidManifest.xml");
-
         Path dalvikActivityPackage = dalvikClassPath.resolve("com/gluonhq/helloandroid");
         FileOps.copyResource("/native/android/dalvik/MainActivity.class", dalvikActivityPackage.resolve("MainActivity.class"));
         FileOps.copyResource("/native/android/dalvik/MainActivity$1.class", dalvikActivityPackage.resolve("MainActivity$1.class"));
