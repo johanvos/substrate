@@ -282,9 +282,7 @@ fprintf(stderr, "In dummy JNI_OnLoad_javafx_font\n");
 #endif
 }
 
-JNIEXPORT void JNICALL 
-Java_javafx_scene_control_skin_TextFieldSkinAndroid_showSoftwareKeyboard
-(JNIEnv *env, jobject textfieldskin) {
+void showSoftwareKeyboard() {
     JNIEnv *menv;
     (*androidVM)->AttachCurrentThread(androidVM, (JNIEnv **) &menv, NULL);
     LOGE(stderr, "now I have to show keyboard, invoke method %p on env %p (old = %p)\n", activity_showIME, menv, androidEnv); 
@@ -294,8 +292,18 @@ Java_javafx_scene_control_skin_TextFieldSkinAndroid_showSoftwareKeyboard
 }
 
 JNIEXPORT void JNICALL 
-Java_javafx_scene_control_skin_TextFieldSkinAndroid_hideSoftwareKeyboard
+Java_javafx_scene_control_skin_TextAreaSkinAndroid_showSoftwareKeyboard
+(JNIEnv *env, jobject textareaskin) {
+    showSoftwareKeyboard();
+}
+
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextFieldSkinAndroid_showSoftwareKeyboard
 (JNIEnv *env, jobject textfieldskin) {
+    showSoftwareKeyboard();
+}
+
+void hideSoftwareKeyboard() {
     JNIEnv *menv;
     (*androidVM)->AttachCurrentThread(androidVM, (JNIEnv **) &menv, NULL);
     LOGE(stderr, "now I have to hide keyboard, invoke method %p on env %p (old = %p)\n", activity_hideIME, menv, androidEnv); 
@@ -303,4 +311,17 @@ Java_javafx_scene_control_skin_TextFieldSkinAndroid_hideSoftwareKeyboard
     (*androidVM)->DetachCurrentThread(androidVM);
     LOGE(stderr, "I did hide keyboard\n"); 
 }
+
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextFieldSkinAndroid_hideSoftwareKeyboard
+(JNIEnv *env, jobject textfieldskin) {
+    hideSoftwareKeyboard();
+}
+
+JNIEXPORT void JNICALL 
+Java_javafx_scene_control_skin_TextAreaSkinAndroid_hideSoftwareKeyboard
+(JNIEnv *env, jobject textareaskin) {
+    hideSoftwareKeyboard();
+}
+
 
