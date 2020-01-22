@@ -28,13 +28,14 @@
 #include <stdio.h>
 
 extern int *run_main(int argc, char* argv[]);
-const char* args[] = {"myapp"};
+const char* args[] = {"myapp",
+"-Djfxmedia.loglevel=debug"};
 
 int main() {
     #ifdef GVM_VERBOSE
       fprintf(stderr, "Main\n");
     #endif
-    (*run_main)(1, args);
+    (*run_main)(2, args);
 }
 
 // the following functions are used in Java 11 but not in 14
