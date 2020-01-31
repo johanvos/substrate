@@ -178,6 +178,13 @@
   }
 ,
   {
+    "name" : "com.sun.media.jfxmediaimpl.NativeMediaPlayer",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredMethods": true
+  }
+,
+  {
     "name" : "com.sun.media.jfxmedia.locator.Locator",
     "methods" : [
       {"name":"getStringLocation","parameterTypes":[]},

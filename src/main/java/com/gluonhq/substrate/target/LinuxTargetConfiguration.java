@@ -62,13 +62,14 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
 
     private static final List<String> linuxfxlibs = Arrays.asList( "-Wl,--whole-archive",
             "-lprism_es2", "-lglass", "-lglassgtk3", "-ljavafx_font",
-            "-ljavafx_font_freetype", "-ljavafx_font_pango", "-ljavafx_iio", "-ljfxmedia",
+            "-ljavafx_font_freetype", "-ljavafx_font_pango", "-ljavafx_iio", "-ljfxmedia", "-lfxplugins", "-lavplugin",
             "-Wl,--no-whole-archive", "-lGL", "-lX11","-lgtk-3", "-lgdk-3",
             "-lpangocairo-1.0", "-lpango-1.0", "-latk-1.0",
             "-lcairo-gobject", "-lcairo", "-lgdk_pixbuf-2.0",
             "-lgio-2.0", "-lgobject-2.0", "-lglib-2.0", "-lfreetype",
             "-lpangoft2-1.0", "-lgstreamer-lite",
             "-lgthread-2.0", "-lstdc++", "-lz", "-lXtst", 
+            "-lavcodec", "-lavformat", "-lavutil",
             "-lasound", "-lm", "-lgmodule-2.0"
     );
 
