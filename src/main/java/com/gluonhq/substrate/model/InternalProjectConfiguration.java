@@ -61,6 +61,8 @@ public class InternalProjectConfiguration {
     private boolean useJavaFX = false;
     private boolean usePrismSW = false;
     private boolean enableCheckHash = true;
+    
+    private boolean farm = false;
 
     private String backend;
     private List<String> bundlesList = Collections.emptyList();
@@ -232,7 +234,15 @@ public class InternalProjectConfiguration {
     public void setUseJNI(boolean useJNI) {
         this.useJNI = useJNI;
     }
+    
+    public boolean isFarm() {
+        return publicConfig.getFarm();
+    }
 
+    public void setFarm(boolean v) {
+        this.farm = v;
+    }
+    
     public boolean isUseJavaFX() {
         return useJavaFX;
     }

@@ -80,5 +80,7 @@ public interface TargetConfiguration {
     String run(Path appPath, String appName) throws IOException, InterruptedException;
 
     boolean runUntilEnd() throws IOException, InterruptedException;
-
+    
+    boolean buildInFarm();
+    
 }

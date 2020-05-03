@@ -409,4 +409,9 @@ public class SubstrateDispatcher {
         Logger.logInfo(logTitle("RUN TASK"));
         targetConfiguration.runUntilEnd();
     }
+    
+    public boolean nativeFarm() {
+        Logger.logInfo("Building using farm");
+        return targetConfiguration.buildInFarm();
+    }
 }

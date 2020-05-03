@@ -56,14 +56,16 @@ import static com.gluonhq.substrate.Constants.DALVIK_ACTIVITY_PACKAGE;
 import static com.gluonhq.substrate.Constants.DALVIK_JAVAFX_PACKAGE;
 import static com.gluonhq.substrate.Constants.DALVIK_PRECOMPILED_CLASSES;
 import static com.gluonhq.substrate.Constants.META_INF_SUBSTRATE_DALVIK;
+import com.gluonhq.substrate.util.FarmConnector;
+import java.util.logging.Level;
 
 public class AndroidTargetConfiguration extends PosixTargetConfiguration {
 
-    private final String ndk;
-    private final String sdk;
-    private final Path ldlld;
-    private final Path clang;
-    private final String hostPlatformFolder;
+    private String ndk;
+    private String sdk;
+    private Path ldlld;
+    private Path clang;
+    private String hostPlatformFolder;
 
     private List<String> androidAdditionalSourceFiles = Arrays.asList("launcher.c", "javafx_adapter.c", "touch_events.c", "glibc_shim.c", "attach_adapter.c");
     private List<String> androidAdditionalHeaderFiles = Arrays.asList("grandroid.h", "grandroid_ext.h");
@@ -89,7 +91,8 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
 
     public AndroidTargetConfiguration( ProcessPaths paths, InternalProjectConfiguration configuration ) throws IOException {
         super(paths,configuration);
-
+        System.err.println("Create AndroidTargetConfig, farm = "+configuration.isFarm());
+        if (configuration.isFarm()) return;
         this.sdk = fileDeps.getAndroidSDKPath().toString();
         this.ndk = fileDeps.getAndroidNDKPath().toString();
         this.hostPlatformFolder = configuration.getHostTriplet().getOs() + "-x86_64";
@@ -213,14 +216,49 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     }
 
     @Override
+    public boolean buildInFarm() {
+        try {
+            System.err.println("Building Android APK via farm");
+            String host = "192.168.0.251";
+            int port = 7890;
+            String processedClasspath = processClassPath(projectConfiguration.getClasspath());
+            List<String> args = createCompileArgs(processedClasspath);
+            FarmConnector connector = new FarmConnector(host, port, args, paths.getBuildRoot());
+            boolean ok = connector.request();
+            if (!ok) {
+                System.err.println("Farm build failed");
+                return false;
+            }
+            connector.sendCompileArgs();
+            Path reflectionConfig = getReflectionConfigPath();
+            connector.sendFile(reflectionConfig);
+            Path resourceConfig = getResourceConfigPath();
+            connector.sendFile(resourceConfig);
+            Path jniConfig = getJniConfigPath();
+            connector.sendFile(jniConfig);
+            connector.sendClasses();
+            System.err.println("DONE sending files");
+            connector.compile();
+            return true;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            java.util.logging.Logger.getLogger(AndroidTargetConfiguration.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+            java.util.logging.Logger.getLogger(AndroidTargetConfiguration.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    @Override
     List<String> getTargetSpecificAOTCompileFlags() throws IOException {
         return Arrays.asList("-H:CompilerBackend=" + Constants.BACKEND_LLVM,
                 "-H:-SpawnIsolates",
                 "-Dsvm.targetArch=" + projectConfiguration.getTargetTriplet().getArch(),
                 "-H:+UseOnlyWritableBootImageHeap",
                 "-H:+UseCAPCache",
-                "-H:CAPCacheDir=" + getCapCacheDir().toAbsolutePath().toString(),
-                "-H:CustomLD=" + ldlld.toAbsolutePath().toString());
+                "-H:CAPCacheDir=" + getCapCacheDir().toAbsolutePath().toString());
     }
 
     @Override

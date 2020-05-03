@@ -131,33 +131,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         }
 
         ProcessRunner compileRunner = new ProcessRunner(getNativeImagePath());
-
-        baseNativeImageArguments.forEach(compileRunner::addArg);
-
-        compileRunner.addArgs(getEnabledFeatures());
-
-        compileRunner.addArg(createTempDirectoryArg());
-
-        if (allowHttps()) {
-            compileRunner.addArg("-H:EnableURLProtocols=http,https");
-        }
-
-        if (projectConfiguration.isVerbose()) {
-            verboseNativeImageArguments.forEach(compileRunner::addArg);
-        }
-
-        compileRunner.addArgs(getConfigurationFileArgs(processedClasspath));
-
-        compileRunner.addArgs(getTargetSpecificAOTCompileFlags());
-        if (!getBundlesList().isEmpty()) {
-            String bundles = String.join(",", getBundlesList());
-            compileRunner.addArg("-H:IncludeResourceBundles=" + bundles);
-        }
-        compileRunner.addArg(getJniPlatformArg());
-        compileRunner.addArg("-cp");
-        compileRunner.addArg(processedClasspath);
-        compileRunner.addArgs(projectConfiguration.getCompilerArgs());
-        compileRunner.addArg(projectConfiguration.getMainClassName());
+        createCompileArgs(processedClasspath).forEach(compileRunner::addArg);
+        
 
         postProcessCompilerArguments(compileRunner.getCmdList());
 
@@ -290,9 +265,45 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         int result = runProcess.runProcess("run until end");
         return result == 0;
     }
+    
+    @Override
+    public boolean buildInFarm() {
+        return false;
+    }
 
     // --- private methods
 
+    protected List<String> createCompileArgs(String processedClasspath) throws IOException, InterruptedException  {
+        List<String> args = new ArrayList<>();
+        args.addAll(baseNativeImageArguments);
+        args.addAll(getEnabledFeatures());
+        args.add(createTempDirectoryArg());
+
+        if (allowHttps()) {
+            args.add("-H:EnableURLProtocols=http,https");
+        }
+
+        if (projectConfiguration.isVerbose()) {
+            args.addAll(verboseNativeImageArguments);
+        }
+        
+        args.addAll(getConfigurationFileArgs(processedClasspath));
+
+        args.addAll(getTargetSpecificAOTCompileFlags());
+        
+        if (!getBundlesList().isEmpty()) {
+            String bundles = String.join(",", getBundlesList());
+            args.add("-H:IncludeResourceBundles=" + bundles);
+        }
+        args.add(getJniPlatformArg());
+        args.add("-cp");
+        args.add(processedClasspath);
+        args.addAll(projectConfiguration.getCompilerArgs());
+        args.add(projectConfiguration.getMainClassName());
+
+        return args;
+    }
+    
     protected boolean compileAdditionalSources()
             throws IOException, InterruptedException {
 
@@ -468,6 +479,10 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         return list;
     }
 
+    private Path reflectionConfigPath;
+    private Path resourceConfigPath;
+    private Path jniConfigPath;
+    
     private List<String> getConfigurationFileArgs(String processedClasspath) throws IOException, InterruptedException {
         List<String> arguments = new ArrayList<>();
 
@@ -478,12 +493,26 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         if (!buildTimeList.isEmpty()) {
             arguments.add("--initialize-at-build-time=" + String.join(",", buildTimeList));
         }
-
-        arguments.add("-H:ReflectionConfigurationFiles=" + createReflectionConfig(suffix, configResolver));
-        arguments.add("-H:JNIConfigurationFiles=" + createJNIConfig(suffix, configResolver));
-        arguments.add("-H:ResourceConfigurationFiles=" + createResourceConfig(suffix, configResolver));
+        this.reflectionConfigPath = createReflectionConfig(suffix, configResolver);
+        this.resourceConfigPath = createResourceConfig(suffix, configResolver);
+        this.jniConfigPath = createJNIConfig(suffix, configResolver);
+        arguments.add("-H:ReflectionConfigurationFiles=" + reflectionConfigPath);
+        arguments.add("-H:JNIConfigurationFiles=" + jniConfigPath);
+        arguments.add("-H:ResourceConfigurationFiles=" + resourceConfigPath);
 
         return arguments;
+    }
+    
+    public  Path getReflectionConfigPath() {
+        return this.reflectionConfigPath;
+    }
+
+    public  Path getResourceConfigPath() {
+        return this.resourceConfigPath;
+    }
+
+    public  Path getJniConfigPath() {
+        return this.jniConfigPath;
     }
 
     /**
