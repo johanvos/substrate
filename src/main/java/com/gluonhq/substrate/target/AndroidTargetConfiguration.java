@@ -222,8 +222,11 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
             String host = "192.168.0.251";
             int port = 7890;
             String processedClasspath = processClassPath(projectConfiguration.getClasspath());
+            Path androidPathForRes = prepareAndroidResources();
             List<String> args = createCompileArgs(processedClasspath);
-            FarmConnector connector = new FarmConnector(host, port, args, paths.getBuildRoot());
+            FarmConnector connector = new FarmConnector(host, port, args, 
+                    paths.getBuildRoot(), projectConfiguration.getMainClassName(),
+            projectConfiguration.getAppName());
             boolean ok = connector.request();
             if (!ok) {
                 System.err.println("Farm build failed");
@@ -236,6 +239,8 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
             connector.sendFile(resourceConfig);
             Path jniConfig = getJniConfigPath();
             connector.sendFile(jniConfig);
+            Path manifest = prepareAndroidManifest();
+            connector.sendGenSrc();
             connector.sendClasses();
             System.err.println("DONE sending files");
             connector.compile();
