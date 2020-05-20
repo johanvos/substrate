@@ -57,6 +57,7 @@ import static com.gluonhq.substrate.Constants.DALVIK_JAVAFX_PACKAGE;
 import static com.gluonhq.substrate.Constants.DALVIK_PRECOMPILED_CLASSES;
 import static com.gluonhq.substrate.Constants.META_INF_SUBSTRATE_DALVIK;
 import com.gluonhq.substrate.util.FarmConnector;
+import java.util.LinkedList;
 import java.util.logging.Level;
 
 public class AndroidTargetConfiguration extends PosixTargetConfiguration {
@@ -215,6 +216,25 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         return processResult == 0;
     }
 
+    boolean isJavaFXJar(String jar) {
+        if (jar.indexOf("javafx-graphics") > -1) return true;
+        if (jar.indexOf("javafx-controls") > -1) return true;
+        if (jar.indexOf("javafx-fxml") > -1) return true;
+        return false;
+    }
+    
+    List<String> analyseClasspath(String cp)  {
+        List<String> answer = new LinkedList<>();
+        String[] split = cp.split(File.pathSeparator);
+        for (String candidate : split) {
+            System.err.println("CP: "+candidate);
+            if (candidate.endsWith(".jar") && !isJavaFXJar(candidate)) {
+                answer.add(candidate);
+            }
+        }
+        return answer;
+    }
+    
     @Override
     public boolean buildInFarm() {
         try {
@@ -222,6 +242,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
             String host = "192.168.0.251";
             int port = 7890;
             String processedClasspath = processClassPath(projectConfiguration.getClasspath());
+            List<String> jarsToSend = analyseClasspath(processedClasspath);
             Path androidPathForRes = prepareAndroidResources();
             List<String> args = createCompileArgs(processedClasspath);
             FarmConnector connector = new FarmConnector(host, port, args, 
@@ -239,6 +260,8 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
             connector.sendFile(resourceConfig);
             Path jniConfig = getJniConfigPath();
             connector.sendFile(jniConfig);
+            System.err.println("sending jars");
+            jarsToSend.forEach(jar -> connector.sendFile(Paths.get(jar)));
             Path manifest = prepareAndroidManifest();
             connector.sendGenSrc();
             connector.sendClasses();

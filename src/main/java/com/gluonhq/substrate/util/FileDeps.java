@@ -109,6 +109,7 @@ public final class FileDeps {
      * @throws IOException in case anything goes wrong.
      */
     public Path getJavaFXSDKLibsPath() throws IOException {
+        Thread.dumpStack();
         return resolvePath(configuration.getJavafxStaticLibsPath(),"Fatal error, could not install JavaFX SDK ");
     }
 
@@ -261,7 +262,7 @@ public final class FileDeps {
 
             Path libsLocation = androidSdk.resolve("tools").resolve("lib").resolve("java11");
 
-            if (!Files.exists(androidSdk)) {
+            if (!Files.exists(androidSdk) && (!configuration.isFarm())) {
                 Logger.logInfo("ANDROID_SDK not found and will be downloaded.");
                 downloadAndroidSdk = true;
             } 
@@ -270,7 +271,7 @@ public final class FileDeps {
                 downloadAndroidAdditionalLibs = true;
             }
 
-            if (!Files.exists(androidNdk)) {
+            if (!Files.exists(androidNdk) && (!configuration.isFarm())) {
                 Logger.logInfo("ANDROID_NDK not found and will be downloaded.");
                 downloadAndroidNdk = true;
             }
