@@ -29,6 +29,23 @@
 #include <string.h>
 #include "grandroid.h"
 
+jclass nativeWebViewClass;
+jobject nativeWebViewObj;
+jmethodID nativeWebView_init;
+jmethodID nativeWebView_loadUrl;
+int reg = -1;
+
+void registerJavaFXMethodHandles(JNIEnv *aenv)
+{
+    if (reg < 0) {
+        nativeWebViewClass = (*aenv)->NewGlobalRef(aenv, (*aenv)->FindClass(aenv, "com/gluonhq/helloandroid/NativeWebView"));
+        nativeWebView_init = (*aenv)->GetMethodID(aenv, nativeWebViewClass, "<init>", "()V");
+        nativeWebView_loadUrl = (*aenv)->GetMethodID(aenv, nativeWebViewClass, "loadUrl", "(Ljava/lang/String;)V");
+        reg = 1;
+    }
+}
+
+
 JNIEXPORT void JNICALL Java_com_gluonhq_helloandroid_MainActivity_nativeSetSurface(JNIEnv *env, jobject activity, jobject surface)
 {
     LOGE(stderr, "nativeSetSurface called, env at %p and size %ld, surface at %p\n", env, sizeof(JNIEnv), surface);
@@ -129,4 +146,30 @@ JNIEXPORT void JNICALL
 Java_javafx_scene_control_skin_TextAreaSkinAndroid_hideSoftwareKeyboard(JNIEnv *env, jobject textareaskin)
 {
     hideSoftwareKeyboard();
+}
+
+void substrate_showWebView() {
+    fprintf(stderr, "Substrate needs to show webview\n");
+    ATTACH_DALVIK();
+    // registerJavaFXMethodHandles(dalvikEnv);
+    LOGE(stderr, "Substrate needs to show Android WebView\n");
+    jobject tmpobj = (jobject)((*dalvikEnv)->NewObject(dalvikEnv, nativeWebViewClass, nativeWebView_init));
+    nativeWebViewObj = (jobject)((*dalvikEnv)->NewGlobalRef(dalvikEnv, tmpobj));
+fprintf(stderr, "tmpo = %p and wvo = %p\n", tmpobj, nativeWebViewObj);
+    LOGE(stderr, "Substrate Created Android WebView\n");
+    if ((*dalvikEnv)->ExceptionOccurred(dalvikEnv)) {
+fprintf(stderr, "EXCEPTION CREATING WEBVIEW\n");
+    } else {
+fprintf(stderr, "NOEXCEPTION CREATING WEBVIEW\n");
+    }
+    DETACH_DALVIK();
+}
+
+void substrate_loadUrl(char* curl) {
+    ATTACH_DALVIK();
+fprintf(stderr, "load curl: %s\n", curl);
+    jstring jurl = (*dalvikEnv)->NewStringUTF(dalvikEnv, curl);
+fprintf(stderr, "call loadurl and wvo = %p\n", nativeWebViewObj);
+    (*dalvikEnv)->CallVoidMethod(dalvikEnv, nativeWebViewObj, nativeWebView_loadUrl, jurl);
+    DETACH_DALVIK();
 }
