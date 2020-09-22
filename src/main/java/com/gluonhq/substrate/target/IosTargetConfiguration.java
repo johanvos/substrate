@@ -119,6 +119,9 @@ public class IosTargetConfiguration extends DarwinTargetConfiguration {
 
     @Override
     List<String> getTargetSpecificAOTCompileFlags() throws IOException {
+        if (Constants.ARCH_AMD64.equals(getTargetArch())) {
+            return Collections.emptyList();
+        }
         return Arrays.asList("-H:CompilerBackend=" + Constants.BACKEND_LLVM,
                 "-H:-SpawnIsolates",
                 "-H:PageSize=16384",
@@ -145,6 +148,9 @@ public class IosTargetConfiguration extends DarwinTargetConfiguration {
 
     @Override
     List<String> getTargetSpecificObjectFiles() throws IOException {
+        if (Constants.ARCH_AMD64.equals(getTargetArch())) {
+            return Collections.emptyList();
+        }
         return FileOps.findFile( paths.getGvmPath(), "llvm.o").map( objectFile ->
            Collections.singletonList(objectFile.toAbsolutePath().toString())
         ).orElseThrow();
