@@ -360,7 +360,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
                 switch (arch) {
                     case Constants.ARCH_AMD64:
                         return "DARWIN_AMD64";
-                    case Constants.ARCH_AARCH64:
+                    case Constants.ARCH_ARM64:
                         return "DARWIN_AARCH64";
                     default:
                         throw new IllegalArgumentException("No support yet for " + os + ":" + arch);
