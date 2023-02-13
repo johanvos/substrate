@@ -657,7 +657,8 @@ public class InternalProjectConfiguration {
         if (responses == null || responses.isEmpty()) {
             throw new IOException("Couldn't determine GraalVM's Java version");
         }
-        Matcher m = r.matcher(responses.get(0));
+        String longVersion = responses.get(0).replaceAll("-internal", "");
+        Matcher m = r.matcher(longVersion);
         if (!m.find()) {
             throw new IOException("Couldn't determine GraalVM's Java version for " + responses.get(0));
         }

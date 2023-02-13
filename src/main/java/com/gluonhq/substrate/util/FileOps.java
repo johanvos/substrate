@@ -719,7 +719,6 @@ public class FileOps {
         Path depsPath = tmpPath.resolve(Constants.PATHING_JAR_DEPS_PATH);
 
         String[] classpathEntries = classpath.split(File.pathSeparator);
-
         Stream<String> convertedDirectories = Arrays.stream(classpathEntries)
                 .map(Path::of)
                 .filter(Files::isDirectory)

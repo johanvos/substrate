@@ -78,6 +78,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
             new ArrayList<>(Arrays.asList("org.graalvm.home.HomeFinderFeature"));
 
     private static final List<String> baseNativeImageArguments = Arrays.asList(
+            "--add-exports org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED",
+            "--add-exports jdk.internal.vm.compiler/org.graalvm.compiler.options=ALL-UNNAMED",
             "-Djdk.internal.lambda.eagerlyInitialize=false",
             "--no-server",
             "-H:+SharedLibrary",

@@ -55,11 +55,11 @@ public class GluonFeature implements Feature {
     @Override
     public void duringSetup(DuringSetupAccess access) {
         System.err.println("GluonFeature enabled in setup " + access);
-        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("prism_sw");
-        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("prism_es2");
-        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glass");
-        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glass_monocle");
-        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glassgtk3");
+//        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("prism_sw");
+//        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("prism_es2");
+//        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glass");
+//        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glass_monocle");
+//        NativeLibrarySupport.singleton().preregisterUninitializedBuiltinLibrary("glassgtk3");
 
     }
 
