@@ -60,7 +60,7 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
     private static final List<String> linuxLibs = Arrays.asList("z", "dl", "stdc++", "pthread");
 
     private static final List<String> staticJavaLibs = Arrays.asList(
-            "java", "nio", "zip", "net", "prefs", "j2pkcs11", "sunec", "extnet", "fdlibm",
+            "java", "nio", "zip", "net", "prefs", "j2pkcs11", "extnet", "fdlibm",
             "fontmanager", "javajpeg", "lcms", "awt_headless", "awt"
     );
 
@@ -237,6 +237,14 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
     @Override
     List<String> getOtherStaticLibs() {
         return Stream.concat(staticJvmLibs.stream().map(lib -> ":lib" + lib + ".a"), linuxLibs.stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    List<Path> getStaticJVMLibs() {
+        Path cLibPath = getCLibPath();
+        return staticJvmLibs.stream()
+                .map(lib -> cLibPath.resolve("lib"+lib+".a"))
                 .collect(Collectors.toList());
     }
 

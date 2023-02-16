@@ -66,6 +66,7 @@ public class InternalProjectConfiguration {
     private boolean enableCheckHash = true;
     private boolean usesJDK11 = false;
     private boolean sharedLibrary = false;
+    private boolean staticLibrary = false;
 
     private String backend;
     private List<String> initBuildTimeList;
@@ -325,6 +326,14 @@ public class InternalProjectConfiguration {
      */
     public void setEnableCheckHash(boolean enableCheckHash) {
         this.enableCheckHash = enableCheckHash;
+    }
+
+    public boolean isStaticLibrary() {
+        return staticLibrary;
+    }
+
+    public void setStaticLibrary(boolean staticLibrary) {
+        this.staticLibrary = staticLibrary;
     }
 
     public boolean isSharedLibrary() {

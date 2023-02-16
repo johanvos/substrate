@@ -203,7 +203,9 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
             new IllegalArgumentException(
                     "Linking failed, since there is no objectfile named " + objectFilename + " under " + gvmPath.toString())
         );
-
+        if (projectConfiguration.isStaticLibrary()) {
+            return createStaticLib();
+        }
         ProcessRunner linkRunner = new ProcessRunner(getLinker());
 
         Path gvmAppPath = gvmPath.resolve(appName);
@@ -215,19 +217,16 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
 
         linkRunner.addArg(objectFile.toString());
         linkRunner.addArgs(getTargetSpecificObjectFiles());
-
         linkRunner.addArgs(getNativeCodeList().stream()
             .map(s -> s.replaceAll("\\..*", "." + getObjectFileExtension()))
             .distinct()
             .map(sourceFile -> gvmAppPath.resolve(sourceFile).toString())
             .collect(Collectors.toList()));
-
         linkRunner.addArgs(getTargetSpecificJavaLinkLibraries());
         linkRunner.addArgs(getTargetSpecificLinkFlags(projectConfiguration.isUseJavaFX(),
                 projectConfiguration.isUsePrismSW()));
 
         linkRunner.addArgs(getTargetSpecificLinkOutputFlags());
-
         linkRunner.addArgs(getLinkerLibraryPathFlags());
         linkRunner.addArgs(getNativeLibsLinkFlags());
         linkRunner.addArgs(projectConfiguration.getLinkerArgs());
@@ -316,6 +315,17 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      */
     @Override
     public boolean createSharedLib() throws IOException, InterruptedException {
+        return true;
+    }
+
+    /**
+     * Creates a static library
+     * @return true if the process succeeded or false if the process failed
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Override
+    public boolean createStaticLib() throws IOException, InterruptedException {
         return true;
     }
 
@@ -431,7 +441,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      * The clibraries path is available by default in GraalVM, but the directory for cross-platform libs may
      * not exist. In that case, retrieve the libs from our download site.
      */
-    private void ensureClibs() throws IOException {
+    void ensureClibs() throws IOException {
         Triplet target = projectConfiguration.getTargetTriplet();
         Path clibPath = getCLibPath();
         if (FileOps.isDirectoryEmpty(clibPath)) {
@@ -916,6 +926,17 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      */
     List<String> getStaticJavaLibs() {
         return defaultStaticJavaLibs;
+    }
+
+    /**
+     * Return a list of static libraries (JVM libraries)
+     * Implementations can override this for providing a different list.
+     *
+     * @return a List of static libraries that will be understood by the host-specific
+     * linker for the specific target.
+     */
+    List<Path> getStaticJVMLibs() {
+        return List.of();
     }
 
     /**

@@ -29,11 +29,17 @@ package com.gluonhq.substrate.target;
 
 import com.gluonhq.substrate.model.InternalProjectConfiguration;
 import com.gluonhq.substrate.model.ProcessPaths;
+import com.gluonhq.substrate.util.FileOps;
 import com.gluonhq.substrate.util.Logger;
+import com.gluonhq.substrate.util.ProcessRunner;
+import java.io.File;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 abstract class PosixTargetConfiguration extends AbstractTargetConfiguration {
 
@@ -58,6 +64,55 @@ abstract class PosixTargetConfiguration extends AbstractTargetConfiguration {
             return false;
         }
         return Files.exists(getSharedLibPath());
+    }
+
+    @Override
+    public boolean createStaticLib() throws IOException, InterruptedException {
+        if (!compile()) {
+            Logger.logSevere("Error building a shared image: error compiling the native image");
+            return false;
+        }
+        compileAdditionalSources();
+        super.ensureClibs();
+
+        String appName = projectConfiguration.getAppName();
+        String objectFilename = projectConfiguration.getMainClassName().toLowerCase(Locale.ROOT) + "." + getObjectFileExtension();
+        Path gvmPath = paths.getGvmPath();
+        Path objectFile = FileOps.findFile(gvmPath, objectFilename).orElseThrow( () ->
+            new IllegalArgumentException(
+                    "Linking failed, since there is no objectfile named " + objectFilename + " under " + gvmPath.toString())
+        );
+
+        Path singleAr = paths.getTmpPath().resolve("compiled.a");
+        Path dest = getStaticLibPath();
+
+        ProcessRunner arRunner = new ProcessRunner("ar", "-rcs", singleAr.toString(), objectFile.toString());
+        arRunner.runProcess("ar");
+
+        List<String> instructions = new ArrayList<>();
+        instructions.add("create "+dest.toString());
+        instructions.add("addlib "+singleAr.toString());
+        getStaticJavaLibs().forEach(l -> instructions.add("addlib "+l.toString()));
+        Path cLibPath = getCLibPath();
+        getStaticJVMLibs().forEach(jvmlib -> instructions.add("addlib "+jvmlib.toString()));
+        instructions.add("save");
+        instructions.add("end");
+        System.err.println("instructions = "+instructions);
+        Path receipe = Files.createTempFile(null, ".arr");
+        Files.write(receipe, instructions);
+        ProcessBuilder pb = new ProcessBuilder("ar","-M");
+        pb.redirectOutput(new File("/tmp/result"));
+        pb.redirectError(new File("/tmp/resulterr"));
+
+        pb.redirectInput(receipe.toFile());
+
+        Process p = pb.start();
+
+        return Files.exists(getStaticLibPath());
+    }
+
+    final Path getStaticLibPath() {
+        return paths.getAppPath().resolve("lib" + getLinkOutputName() + ".a");
     }
 
     abstract Path getSharedLibPath();
