@@ -27,6 +27,15 @@
  */
 #include <stdlib.h>
 
+int checkCPUFeatures(){
+fprintf(stderr, "CHECKCPUFEATURES\n");
+return 0;
+}
+void checkCPUFeaturesOrExit(){
+fprintf(stderr, "CHECKCPUFEATURES2\n");
+
+}
+
 #ifdef GVM_17
 // dummy symbols only for JDK17
 void Java_java_net_AbstractPlainDatagramSocketImpl_isReusePortAvailable0() {}

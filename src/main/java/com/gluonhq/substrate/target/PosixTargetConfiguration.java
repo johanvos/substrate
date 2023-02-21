@@ -85,7 +85,7 @@ abstract class PosixTargetConfiguration extends AbstractTargetConfiguration {
 
         Path singleAr = paths.getTmpPath().resolve("compiled.a");
         Path dest = getStaticLibPath();
-
+        System.err.println("DESTINATION of lib = "+dest+", exists? "+Files.exists(dest));
         ProcessRunner arRunner = new ProcessRunner("ar", "-rcs", singleAr.toString(), objectFile.toString());
         arRunner.runProcess("ar");
 
@@ -107,6 +107,8 @@ abstract class PosixTargetConfiguration extends AbstractTargetConfiguration {
         pb.redirectInput(receipe.toFile());
 
         Process p = pb.start();
+        int res = p.waitFor();
+        System.err.println("DONEDESTINATION of lib = "+dest+", res = " + res+", exists? "+Files.exists(dest));
 
         return Files.exists(getStaticLibPath());
     }
