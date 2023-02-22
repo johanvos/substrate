@@ -234,9 +234,6 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
 
     @Override
     List<String> getAdditionalSourceFiles() {
-        if (projectConfiguration.isSharedLibrary()) {
-            return List.of();
-        }
         return linuxAdditionalSourceFiles;
     }
 
@@ -326,7 +323,7 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
 
     @Override
     protected List<String> getTargetSpecificCCompileFlags() {
-        List<String> flags = new ArrayList<>(Arrays.asList("-D_GNU_SOURCE", "-I"
+        List<String> flags = new ArrayList<>(Arrays.asList("-D_GNU_SOURCE", "-fPIC", "-I"
                 + projectConfiguration.getGraalPath().resolve("include").toString(),
                 "-I" + projectConfiguration.getGraalPath().resolve("include").resolve("linux").toString()
         ));
@@ -448,6 +445,6 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
 
     @Override
     Path getSharedLibPath() {
-        return paths.getAppPath().resolve(getLinkOutputName() + ".so");
+        return paths.getAppPath().resolve("lib" + getLinkOutputName() + ".so");
     }
 }
