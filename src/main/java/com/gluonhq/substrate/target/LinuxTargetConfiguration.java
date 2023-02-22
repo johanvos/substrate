@@ -64,10 +64,6 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
             "fontmanager", "javajpeg", "lcms", "awt_headless", "awt"
     );
 
-    private static final List<String> staticJvmLibs = Arrays.asList(
-            "jvm", "libchelper"
-    );
-
     private static final List<String> linuxfxlibs = List.of(
             "-lprism_es2", "-lglass", "-lglassgtk3", "-ljavafx_font",
             "-ljavafx_font_freetype", "-ljavafx_font_pango", "-ljavafx_iio"
@@ -104,6 +100,8 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
     private final String sysroot;
 
     private final boolean isAarch64;
+    private List<String> linuxAdditionalSourceFiles = List.of("launcher.c", "JvmFuncs.c", "JvmFuncsFallbacks.c", "cpuid.c", "timeZone.c");
+    private List<String> linuxAdditionalHeaderFiles = List.of("amd64cpufeatures.h","amd64hotspotcpuinfo.h");
 
     public LinuxTargetConfiguration(ProcessPaths paths, InternalProjectConfiguration configuration) throws IOException {
         super(paths, configuration);
@@ -235,23 +233,20 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
     }
 
     @Override
-    List<String> getOtherStaticLibs() {
-        return Stream.concat(staticJvmLibs.stream().map(lib -> ":lib" + lib + ".a"), linuxLibs.stream())
-                .collect(Collectors.toList());
-    }
-
-    @Override
     List<String> getAdditionalSourceFiles() {
         if (projectConfiguration.isSharedLibrary()) {
             return List.of();
         }
-        return super.getAdditionalSourceFiles();
+        return linuxAdditionalSourceFiles;
     }
 
     @Override
+    List<String> getAdditionalHeaderFiles() {
+        return linuxAdditionalHeaderFiles;
+    }
+    @Override
     protected List<Path> getLinkerLibraryPaths() throws IOException {
         List<Path> linkerLibraryPaths = new ArrayList<>();
-        linkerLibraryPaths.add(getCLibPath());
         if (projectConfiguration.isUseJavaFX()) {
             linkerLibraryPaths.add(fileDeps.getJavaFXSDKLibsPath());
         }
@@ -331,7 +326,7 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
 
     @Override
     protected List<String> getTargetSpecificCCompileFlags() {
-        List<String> flags = new ArrayList<>(Arrays.asList("-I"
+        List<String> flags = new ArrayList<>(Arrays.asList("-D_GNU_SOURCE", "-I"
                 + projectConfiguration.getGraalPath().resolve("include").toString(),
                 "-I" + projectConfiguration.getGraalPath().resolve("include").resolve("linux").toString()
         ));

@@ -69,7 +69,6 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractTargetConfiguration implements TargetConfiguration {
 
-    private static final String URL_CLIBS_ZIP = "https://download2.gluonhq.com/substrate/clibs/${osarch}${version}.zip";
     private static final List<String> RESOURCES_BY_EXTENSION = Arrays.asList(
             "png", "jpg", "jpeg", "gif", "bmp", "ttf", "raw",
             "xml", "fxml", "css", "gls", "json", "dat",
@@ -78,8 +77,9 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
             new ArrayList<>(Arrays.asList("org.graalvm.home.HomeFinderFeature"));
 
     private static final List<String> baseNativeImageArguments = Arrays.asList(
+            "--add-exports org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED",
+            "--add-exports jdk.internal.vm.compiler/org.graalvm.compiler.options=ALL-UNNAMED",
             "-Djdk.internal.lambda.eagerlyInitialize=false",
-            "--no-server",
             "-H:+SharedLibrary",
             "-H:+AddAllCharsets",
             "-H:+ReportExceptionStackTraces",
@@ -187,7 +187,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     @Override
     public boolean link() throws IOException, InterruptedException {
         compileAdditionalSources();
-        ensureClibs();
 
         String appName = projectConfiguration.getAppName();
         String objectFilename = projectConfiguration.getMainClassName().toLowerCase(Locale.ROOT) + "." + getObjectFileExtension();
@@ -202,11 +201,14 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         ProcessRunner linkRunner = new ProcessRunner(getLinker());
 
         Path gvmAppPath = gvmPath.resolve(appName);
-        linkRunner.addArgs(getAdditionalSourceFiles().stream()
+        List<String> additionalFiles = getAdditionalSourceFiles().stream()
                 .map(s -> s.replaceAll("\\..*", "." + getObjectFileExtension()))
                 .distinct()
                 .map(sourceFile -> gvmAppPath.resolve(sourceFile).toString())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        Logger.logDebug("Linking with additionalFiles: " + additionalFiles);
+        linkRunner.addArgs(additionalFiles);
 
         linkRunner.addArg(objectFile.toString());
         linkRunner.addArgs(getTargetSpecificObjectFiles());
@@ -432,31 +434,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         }
     }
 
-    /*
-     * Make sure the clibraries needed for linking are available for this particular configuration.
-     * The clibraries path is available by default in GraalVM, but the directory for cross-platform libs may
-     * not exist. In that case, retrieve the libs from our download site.
-     */
-    private void ensureClibs() throws IOException {
-        Triplet target = projectConfiguration.getTargetTriplet();
-        Path clibPath = getCLibPath();
-        if (FileOps.isDirectoryEmpty(clibPath)) {
-            String url = Strings.substitute(URL_CLIBS_ZIP,
-                    Map.of("osarch", target.getOsArch(),
-                            "version", target.getClibsVersion()));
-            FileOps.downloadAndUnzip(url,
-                    clibPath.getParent().getParent().getParent(),
-                    "clibraries.zip",
-                    "clibraries",
-                    target.getClibsVersionPath(),
-                    target.getOsArch2());
-        }
-        if (FileOps.isDirectoryEmpty(clibPath)) {
-            throw new IOException("No clibraries found for the required architecture in "+clibPath);
-        }
-        checkPlatformSpecificClibs(clibPath);
-    }
-
     /**
      * Generates the library search path arguments to be added to the linker.
      *
@@ -486,7 +463,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
             linkerLibraryPaths.add(fileDeps.getJavaFXSDKLibsPath());
         }
 
-        linkerLibraryPaths.add(getCLibPath());
         linkerLibraryPaths.addAll(getStaticJDKLibPaths());
 
         return linkerLibraryPaths;
@@ -809,14 +785,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         return true;
     }
 
-    /**
-     * Allow platforms to check if specific libraries (e.g. libjvm.a) are present in the specified clib path
-     * @param clibPath
-     */
-    void checkPlatformSpecificClibs(Path clibPath) throws IOException {
-        // empty, override by subclasses
-    }
-
     String getAdditionalSourceFileLocation() {
         return "/native/linux/";
     }
@@ -1009,16 +977,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      */
     List<String> getTargetSpecificNativeLibsFlags(Path libPath, List<String> libs) {
         return Collections.emptyList();
-    }
-
-    protected Path getCLibPath() {
-        Triplet target = projectConfiguration.getTargetTriplet();
-        return projectConfiguration.getGraalPath()
-                .resolve("lib")
-                .resolve("svm")
-                .resolve("clibraries")
-                .resolve(target.getClibsVersionPath())
-                .resolve(target.getOsArch2());
     }
 
     protected List<Path> getStaticJDKLibPaths() throws IOException {
