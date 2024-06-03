@@ -246,6 +246,14 @@ public class Triplet {
         return "";
     }
 
+    public String getLibFlavor() {
+        if (OS_LINUX.equals(getOs())) {
+            return "glibc";
+        } else {
+            return "";
+        }
+    }
+
     @Override
     public String toString() {
         return arch + '-' + vendor + '-' + os;
