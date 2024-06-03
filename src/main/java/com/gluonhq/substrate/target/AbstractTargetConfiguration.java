@@ -1041,7 +1041,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
                 .resolve("svm")
                 .resolve("clibraries")
                 .resolve(target.getClibsVersionPath())
-                .resolve(target.getOsArch2());
+                .resolve(target.getOsArch2())
+                .resolve(target.getLibFlavor());
     }
 
     protected List<Path> getStaticJDKLibPaths() throws IOException {
