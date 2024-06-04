@@ -101,3 +101,12 @@ java -classpath ${SUBSTRATE_MODULE_PATH}:out/substrate:src/main/resources \
  -Dprism.sw=true \
  com.gluonhq.substrate.SubstrateDispatcher
 echo "test HelloFX completed"
+
+
+#$GRAALVM_HOME/bin/java \
+#-cp ${WORKSPACE}/build/libs/substrate-${SUBSTRATE_VERSION}.jar \
+#-Dimagecp=${WORKSPACE}/test-project/helloFX/build/classes/java/main:${WORKSPACE}/test-project/helloFX/build/resources/main:${WORKSPACE}/${JAVAFX_STATIC_DIR}/lib/javafx.controls.jar:${WORKSPACE}/${JAVAFX_STATIC_DIR}/lib/javafx.graphics.jar:${WORKSPACE}/${JAVAFX_STATIC_DIR}/lib/javafx.base.jar \
+#-Dgraalvm=${GRAALVM_HOME} \
+#-Dmainclass=com.gluonhq.substrate.test.Main \
+#-Dprism.sw=true \
+#com.gluonhq.substrate.SubstrateDispatcher
