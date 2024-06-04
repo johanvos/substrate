@@ -237,13 +237,13 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     @Override
     List<String> getTargetSpecificAOTCompileFlags() throws IOException {
         ArrayList<String> flags = new ArrayList<String>(Arrays.asList(
-                "-H:-SpawnIsolates",
+         //       "-H:-SpawnIsolates",
                 "-Dsvm.targetArch=" + projectConfiguration.getTargetTriplet().getArch(),
-                "-H:+ForceNoROSectionRelocations",
+               // "-H:+ForceNoROSectionRelocations",
                 "--libc=bionic",
                 "-H:+UseCAPCache",
-                "-H:CAPCacheDir=" + getCapCacheDir().toAbsolutePath().toString(),
-                "-H:CompilerBackend=" + projectConfiguration.getBackend()));
+                "-H:CAPCacheDir=" + getCapCacheDir().toAbsolutePath().toString()));
+//                "-H:CompilerBackend=" + projectConfiguration.getBackend()));
         if (projectConfiguration.isUseLLVM()) {
             flags.add("-H:CustomLD=" + ldlld.toAbsolutePath().toString());
         }
