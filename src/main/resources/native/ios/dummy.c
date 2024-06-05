@@ -93,6 +93,18 @@ void determineCPUFeatures(CPUFeatures* features)
 #endif
 }
 
+void checkCPUFeatures() {
+    fprintf(stderr, "[JVDBG] _checkCPUFeatures\n\n");
+}
+
+void checkCPUFeaturesOrExit() {
+    fprintf(stderr, "[JVDBG] _checkCPUFeaturesOrExit\n\n");
+}
+
+void fprintfSD() {
+    fprintf(stderr, "[JVDBG] _fprintfSD\n\n");
+}
+
 #ifdef GVM_17
 // dummy symbols only for JDK17
 void Java_java_net_AbstractPlainDatagramSocketImpl_isReusePortAvailable0() {}
