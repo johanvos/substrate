@@ -27,6 +27,29 @@
  */
 #include <stdio.h>
 #include <math.h>
+#include <sys/mman.h>
+
+void* myprint(void *addr) {
+fprintf(stderr, "PRINT: %p\n", addr);
+}
+void* mymmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset) {
+    fprintf(stderr, "MyMap, addr = %p, length = %ld, prot = %d, flags = %d, fd = %d, offset = %p\n", addr, length, prot, flags, fd, offset);
+    void* answer = mmap(addr, length, prot, flags, fd, offset);
+    fprintf(stderr, "[JVDBG] MYMMAP answer = %p\n", answer);
+if (answer == MAP_FAILED) {
+fprintf(stderr, "Failed!\n");
+    perror("mmap");
+fprintf(stderr, "try again\n");
+    // void* answer = mmap(NULL, length, prot, flags, fd, offset);
+    // answer = mmap(addr, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); 
+    // answer = mmap(addr, length, prot, flags, -1, 0); 
+    answer = mmap(addr, length, prot, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); 
+
+    fprintf(stderr, "[JVDBG] MYMMAP answer2 = %p\n", answer);
+}
+    return answer; 
+}
+
 
 double pow_old(double x, double y) {
 #ifdef __amd64__

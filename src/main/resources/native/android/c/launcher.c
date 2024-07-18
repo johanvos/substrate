@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/mman.h>
 #include "grandroid.h"
 
 extern int *run_main(int argc, char *argv[]);
@@ -52,6 +53,29 @@ extern int __svm_vm_is_static_binary __attribute__((weak)) = 1;
 const char *userArgs[] = {
 // USER_RUNTIME_ARGS
 };
+
+void* myprint(void *addr) {
+fprintf(stderr, "PRINT: %p\n", addr);
+}
+
+
+void* mymmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset) {
+    fprintf(stderr, "MyMap, addr = %p, length = %ld, prot = %d, flags = %d, fd = %d, offset = %p\n", addr, length, prot, flags, fd, offset);
+    void* answer = mmap(addr, length, prot, flags, fd, offset);
+    fprintf(stderr, "[JVDBG] MYMMAP answer = %p\n", answer);
+if (answer == MAP_FAILED) {
+fprintf(stderr, "Failed!\n");
+    perror("mmap");
+fprintf(stderr, "try again\n");
+    // void* answer = mmap(NULL, length, prot, flags, fd, offset);
+    // answer = mmap(addr, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    // answer = mmap(addr, length, prot, flags, -1, 0);
+    answer = mmap(addr, length, prot, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    fprintf(stderr, "[JVDBG] MYMMAP answer2 = %p\n", answer);
+}
+    return answer;
+}
 
 const char *origArgs[] = {
     "myapp",
