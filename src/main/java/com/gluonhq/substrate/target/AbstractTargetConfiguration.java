@@ -467,8 +467,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         if (projectConfiguration.isUseJavaFX()) {
             linkerLibraryPaths.add(fileDeps.getJavaFXSDKLibsPath());
         }
-
-        linkerLibraryPaths.add(getCLibPath());
         linkerLibraryPaths.addAll(getStaticJDKLibPaths());
 
         return linkerLibraryPaths;
@@ -1019,26 +1017,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         return Collections.emptyList();
     }
 
-    protected Path getCLibPath() {
-        return Path.of("/home/johan/gluon/code/vmone/lib/linux");
-    }
-
     protected List<Path> getStaticJDKLibPaths() throws IOException {
-        List<Path> staticJDKLibPaths = new ArrayList<>();
-        if (projectConfiguration.useCustomJavaStaticLibs()) {
-            staticJDKLibPaths.add(projectConfiguration.getJavaStaticLibsPath());
-        }
-
-        Triplet target = projectConfiguration.getTargetTriplet();
-        Path staticJDKLibPath = projectConfiguration.getGraalPath()
-                .resolve("lib")
-                .resolve("static")
-                .resolve(target.getOsArch2());
-        if (target.getOs().equals(Constants.OS_LINUX)) {
-            return Arrays.asList(staticJDKLibPath.resolve("glibc"));
-        } else {
-            return Arrays.asList(staticJDKLibPath);
-        }
+        return List.of(fileDeps.getJavaSDKLibsPath());
     }
 
     /**

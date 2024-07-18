@@ -215,7 +215,6 @@ public final class FileDeps {
         // Java Static
         Logger.logDebug("Processing JavaStatic dependencies at " + javaStaticLibs.toString());
 
-        if ((configuration.isUseJNI()) && (!configuration.getHostTriplet().equals(configuration.getTargetTriplet()))) {
             if (!Files.isDirectory(javaStaticLibs)) {
                 if (customJavaLocation) {
                     throw new IOException ("A location for the static sdk libs was supplied, but it doesn't exist: "+javaStaticLibs);
@@ -248,7 +247,6 @@ public final class FileDeps {
                     }
                 }
             }
-        }
 
         // JavaFX Static
         if (configuration.isUseJavaFX()) {

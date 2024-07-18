@@ -233,9 +233,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         logger.join();
         return processResult == 0;
     }
-    protected Path getCLibPath() {
-        return Path.of("/home/johan/gluon/code/vmone/lib/android");
-    }
+
     @Override
     List<String> getTargetSpecificAOTCompileFlags() throws IOException {
         ArrayList<String> flags = new ArrayList<String>(Arrays.asList(
@@ -296,14 +294,6 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     String getLinkOutputName() {
         String appName = projectConfiguration.getAppName();
         return "lib" + appName + ".so";
-    }
-
-    @Override
-    protected List<Path> getStaticJDKLibPaths() throws IOException {
-        System.err.println("STATICJDKLIBS = NOT "+Arrays.asList(fileDeps.getJavaSDKLibsPath()));
-        Path p = Path.of("/home/johan/openjdk/github/mobile/build/android-aarch64-minimal-release/jdklibs");
-        return List.of(p);
-//        return Arrays.asList(fileDeps.getJavaSDKLibsPath());
     }
 
     @Override
