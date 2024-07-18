@@ -66,9 +66,7 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
             Lib.upTo(20, "fdlibm"), Lib.of("fontmanager"), Lib.of("javajpeg"), Lib.of("lcms"),
             Lib.of("awt_headless"), Lib.of("awt")
     );
-    private static final List<String> staticJvmLibs = Arrays.asList(
-            "jvm", "libchelper"
-    );
+    private static final List<String> staticJvmLibs = Arrays.asList("vmone");
 
     private static final List<String> linuxfxlibs = List.of(
             "-lprism_es2", "-lglass", "-lglassgtk3", "-ljavafx_font",

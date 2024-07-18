@@ -42,12 +42,6 @@ abstract class PosixTargetConfiguration extends AbstractTargetConfiguration {
     }
 
     @Override
-    void checkPlatformSpecificClibs(Path clibPath) throws IOException {
-        Path libjvmPath = clibPath.resolve("libjvm.a");
-        if (!Files.exists(libjvmPath)) throw new IOException("Missing library libjvm.a not in linkpath "+clibPath);
-    }
-
-    @Override
     public boolean createSharedLib() throws IOException, InterruptedException {
         if (!compile()) {
             Logger.logSevere("Error building a shared image: error compiling the native image");

@@ -359,6 +359,7 @@ NativeCodeInfo:PosixDirectives:EnumInfo:int:EnumConstantInfo:ITIMER_VIRTUAL:Prop
 NativeCodeInfo:PosixDirectives:EnumInfo:int:EnumConstantInfo:ITIMER_VIRTUAL:PropertyInfo:signedness=$UNSIGNED$
 NativeCodeInfo:PosixDirectives:EnumInfo:int:EnumConstantInfo:ITIMER_VIRTUAL:PropertyInfo:value=1
 NativeCodeInfo:PosixDirectives:PointerToInfo:Lmid_t:PropertyInfo:size=8
+NativeCodeInfo:PosixDirectives:PointerToInfo:Lmid_t:PropertyInfo:signedness=$SIGNED$
 NativeCodeInfo:PosixDirectives:PointerToInfo:long_long_int:PropertyInfo:size=8
 NativeCodeInfo:PosixDirectives:PointerToInfo:long_long_int:PropertyInfo:signedness=$SIGNED$
 NativeCodeInfo:PosixDirectives:PointerToInfo:pthread_t:PropertyInfo:size=8

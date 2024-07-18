@@ -89,7 +89,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     private final List<String> linkFlags = Arrays.asList("-target",
             ANDROID_TRIPLET + ANDROID_MIN_SDK_VERSION, "-fPIC",
             "-Wl,--rosegment,--gc-sections,-z,noexecstack", "-shared",
-            "-landroid", "-llog", "-lffi", "-llibchelper", "-static-libstdc++");
+            "-landroid", "-llog", "-static-libstdc++");
     private final List<String> javafxLinkFlags = new ArrayList<>(Arrays.asList(WL_WHOLE_ARCHIVE,
             "-lprism_es2_monocle", "-lglass_monocle", "-ljavafx_font_freetype", "-ljavafx_iio", WL_NO_WHOLE_ARCHIVE,
             "-lGLESv2", "-lEGL", "-lfreetype"));
@@ -156,7 +156,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
                             "-p", getAndroidProjectPath().toString(),
                             "assemble" + configuration);
         assembleRunner.addToEnv("ANDROID_HOME", sdk);
-        assembleRunner.addToEnv("JAVA_HOME", projectConfiguration.getGraalPath().toString());
+//        assembleRunner.addToEnv("JAVA_HOME", projectConfiguration.getGraalPath().toString());
         if (assembleRunner.runProcess("package-task") != 0) {
             return false;
         }
@@ -233,20 +233,16 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
         logger.join();
         return processResult == 0;
     }
-
+    protected Path getCLibPath() {
+        return Path.of("/home/johan/gluon/code/vmone/lib/android");
+    }
     @Override
     List<String> getTargetSpecificAOTCompileFlags() throws IOException {
         ArrayList<String> flags = new ArrayList<String>(Arrays.asList(
-         //       "-H:-SpawnIsolates",
+                "-H:-SpawnIsolates",
                 "-Dsvm.targetArch=" + projectConfiguration.getTargetTriplet().getArch(),
-               // "-H:+ForceNoROSectionRelocations",
-                "--libc=bionic",
                 "-H:+UseCAPCache",
                 "-H:CAPCacheDir=" + getCapCacheDir().toAbsolutePath().toString()));
-//                "-H:CompilerBackend=" + projectConfiguration.getBackend()));
-        if (projectConfiguration.isUseLLVM()) {
-            flags.add("-H:CustomLD=" + ldlld.toAbsolutePath().toString());
-        }
         return flags;
     }
 
@@ -304,7 +300,10 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
 
     @Override
     protected List<Path> getStaticJDKLibPaths() throws IOException {
-        return Arrays.asList(fileDeps.getJavaSDKLibsPath());
+        System.err.println("STATICJDKLIBS = NOT "+Arrays.asList(fileDeps.getJavaSDKLibsPath()));
+        Path p = Path.of("/home/johan/openjdk/github/mobile/build/android-aarch64-minimal-release/jdklibs");
+        return List.of(p);
+//        return Arrays.asList(fileDeps.getJavaSDKLibsPath());
     }
 
     @Override

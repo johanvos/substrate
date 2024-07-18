@@ -84,6 +84,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
             "-Djdk.internal.lambda.eagerlyInitialize=false",
             "-Ddebug.jdk.graal.jvmciConfigCheck=warn",
             "--no-server",
+   //         "-H:-SpawnIsolates",
             "-H:+SharedLibrary",
             "-H:+AddAllCharsets",
             "-H:+ReportExceptionStackTraces",
@@ -104,9 +105,9 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     private final List<String> defaultAdditionalSourceFiles = Collections.singletonList("launcher.c");
     private final List<Lib> defaultStaticJavaLibs = List.of(
             Lib.of("java"), Lib.of("nio"), Lib.of("zip"), Lib.of("net"),
-            Lib.of("prefs"), Lib.of("jvm"), Lib.upTo(20, "fdlibm"), Lib.of("z"),
+            Lib.of("prefs"), Lib.upTo(20, "fdlibm"), Lib.of("z"),
             Lib.of("dl"), Lib.of("j2pkcs11"), Lib.upTo(11, "sunec"), Lib.of("jaas"),
-            Lib.of("extnet")
+            Lib.of("extnet"), Lib.of("vmone")
     );
 
     AbstractTargetConfiguration(ProcessPaths paths, InternalProjectConfiguration configuration) {
@@ -436,23 +437,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      * not exist. In that case, retrieve the libs from our download site.
      */
     private void ensureClibs() throws IOException {
-        Triplet target = projectConfiguration.getTargetTriplet();
-        Path clibPath = getCLibPath();
-        if (FileOps.isDirectoryEmpty(clibPath)) {
-            String url = Strings.substitute(URL_CLIBS_ZIP,
-                    Map.of("osarch", target.getOsArch(),
-                            "version", target.getClibsVersion()));
-            FileOps.downloadAndUnzip(url,
-                    clibPath.getParent().getParent().getParent(),
-                    "clibraries.zip",
-                    "clibraries",
-                    target.getClibsVersionPath(),
-                    target.getOsArch2());
-        }
-        if (FileOps.isDirectoryEmpty(clibPath)) {
-            throw new IOException("No clibraries found for the required architecture in " + clibPath);
-        }
-        checkPlatformSpecificClibs(clibPath);
     }
 
     /**
@@ -1036,14 +1020,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     }
 
     protected Path getCLibPath() {
-        Triplet target = projectConfiguration.getTargetTriplet();
-        return projectConfiguration.getGraalPath()
-                .resolve("lib")
-                .resolve("svm")
-                .resolve("clibraries")
-                .resolve(target.getClibsVersionPath())
-                .resolve(target.getOsArch2())
-                .resolve(target.getLibFlavor());
+        return Path.of("/home/johan/gluon/code/vmone/lib/linux");
     }
 
     protected List<Path> getStaticJDKLibPaths() throws IOException {
