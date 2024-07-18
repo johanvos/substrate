@@ -220,28 +220,6 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
     }
 
     @Override
-    protected List<Path> getStaticJDKLibPaths() throws IOException {
-        if (crossCompile) {
-            return Arrays.asList(fileDeps.getJavaSDKLibsPath());
-        }
-        return super.getStaticJDKLibPaths();
-    }
-
-    @Override
-    List<String> getStaticJavaLibs() {
-        Path javaStaticLibPath;
-        try {
-            javaStaticLibPath = getStaticJDKLibPaths().get(0);
-        } catch (IOException ex) {
-            throw new RuntimeException ("No static java libs found, cannot continue");
-        }
-
-        return filterApplicableLibs(staticJavaLibs).stream()
-                .map(lib -> javaStaticLibPath.resolve("lib" + lib + ".a").toString())
-                .collect(Collectors.toList());
-    }
-
-    @Override
     List<String> getOtherStaticLibs() {
         return Stream.concat(staticJvmLibs.stream().map(lib -> ":lib" + lib + ".a"), linuxLibs.stream())
                 .collect(Collectors.toList());
@@ -253,16 +231,6 @@ public class LinuxTargetConfiguration extends PosixTargetConfiguration {
             return List.of();
         }
         return super.getAdditionalSourceFiles();
-    }
-
-    @Override
-    protected List<Path> getLinkerLibraryPaths() throws IOException {
-        List<Path> linkerLibraryPaths = new ArrayList<>();
-        linkerLibraryPaths.add(getCLibPath());
-        if (projectConfiguration.isUseJavaFX()) {
-            linkerLibraryPaths.add(fileDeps.getJavaFXSDKLibsPath());
-        }
-        return linkerLibraryPaths;
     }
 
     @Override
