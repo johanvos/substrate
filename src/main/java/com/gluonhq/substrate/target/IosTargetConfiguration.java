@@ -57,7 +57,7 @@ public class IosTargetConfiguration extends DarwinTargetConfiguration {
             "AppDelegate.m", "JvmFuncsFallbacks.c");
 
     private static final List<String> ioslibs = Arrays.asList(
-            "-lpthread", "-llibchelper", "-lffi", "-ldarwin");
+            "-lpthread");
 
     private static final List<String> javafxLibs = Arrays.asList(
             "prism_es2", "glass", "javafx_font", "prism_common", "javafx_iio");
@@ -73,8 +73,8 @@ public class IosTargetConfiguration extends DarwinTargetConfiguration {
 
     private static final String[] capFiles = {"AArch64LibCHelperDirectives.cap",
             "AMD64LibCHelperDirectives.cap", "BuiltinDirectives.cap",
-            "JNIHeaderDirectives.cap", "LibFFIHeaderDirectives.cap",
-            "LLVMDirectives.cap", "PosixDirectives.cap"};
+            "JNIHeaderDirectives.cap", "JNIHeaderDirectivesJDK22OrLater.cap", "LibFFIHeaderDirectives.cap",
+            "LLVMDirectives.cap", "PosixDirectives.cap", "RISCV64LibCHelperDirectives.cap"};
     private static final String capLocation= "/native/ios/cap/";
     private static final String iosCheck = "ios/check";
 
