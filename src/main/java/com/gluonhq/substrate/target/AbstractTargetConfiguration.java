@@ -108,7 +108,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
 //            Lib.of("prefs"),
 //            Lib.of("j2pkcs11"), Lib.upTo(11, "sunec"), Lib.of("jaas"),
 //            Lib.of("extnet"), 
-            Lib.of("vmone")
+            Lib.of("vmone"), Lib.of("z")
     );
 
     AbstractTargetConfiguration(ProcessPaths paths, InternalProjectConfiguration configuration) {
