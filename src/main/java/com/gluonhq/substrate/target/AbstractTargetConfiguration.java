@@ -104,10 +104,11 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
 
     private final List<String> defaultAdditionalSourceFiles = Collections.singletonList("launcher.c");
     private final List<Lib> defaultStaticJavaLibs = List.of(
-            Lib.of("java"), Lib.of("nio"), Lib.of("zip"), Lib.of("net"),
-            Lib.of("prefs"), Lib.upTo(20, "fdlibm"), Lib.of("z"),
-            Lib.of("dl"), Lib.of("j2pkcs11"), Lib.upTo(11, "sunec"), Lib.of("jaas"),
-            Lib.of("extnet"), Lib.of("vmone")
+//            Lib.of("java"), Lib.of("nio"), Lib.of("zip"), Lib.of("net"),
+//            Lib.of("prefs"),
+//            Lib.of("j2pkcs11"), Lib.upTo(11, "sunec"), Lib.of("jaas"),
+//            Lib.of("extnet"), 
+            Lib.of("vmone")
     );
 
     AbstractTargetConfiguration(ProcessPaths paths, InternalProjectConfiguration configuration) {
@@ -326,7 +327,24 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      */
     @Override
     public boolean createStaticLib() throws IOException, InterruptedException {
-        return true;
+        String appName = projectConfiguration.getAppName();
+        Path gvmPath = paths.getGvmPath();
+        Path objectFile = getProjectObjectFile();
+
+        ProcessRunner createStaticLibRunner = new ProcessRunner(getStaticLinker());
+        createStaticLibRunner.addArg(getStaticLinkerArgs());
+        Path gvmAppPath = gvmPath.resolve(appName);
+        createStaticLibRunner.addArgs("/tmp/libfoo.a");
+        createStaticLibRunner.addArg(getProjectObjectFile().toString());
+        List<String> javaLibs = getStaticJavaLibs();
+        String libPath = getStaticJDKLibPaths().get(0).toString();
+        for (String javaLib : javaLibs) {
+           createStaticLibRunner.addArgs(libPath+"/lib"+javaLib+".a"); 
+        }
+        createStaticLibRunner.setInfo(true);
+        createStaticLibRunner.setLogToFile(true);
+        int result = createStaticLibRunner.runProcess("archive");
+        return result == 0;
     }
 
     // --- private methods
@@ -778,7 +796,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         if (!projectConfiguration.isUseJavaFX()) {
             return classPath;
         }
-
         return new ClassPath(classPath).mapWithLibs(fileDeps.getJavaFXSDKLibsPath(),
                 s -> s.replace("-", "."),
                 p -> {
@@ -837,6 +854,14 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
 
     String getLinker() {
         return "gcc";
+    }
+
+    String getStaticLinker() {
+        return "ar";
+    }
+
+    String getStaticLinkerArgs() {
+        return "rcs";
     }
 
     String getNativeImageCommand() {
