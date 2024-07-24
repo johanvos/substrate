@@ -343,20 +343,6 @@ public class IosTargetConfiguration extends DarwinTargetConfiguration {
         return appPath.toString() + "/" + appName;
     }
 
-    @Override
-    public boolean createStaticLib() throws IOException, InterruptedException {
-        ProcessRunner linkRunner = new ProcessRunner("ar");
-        linkRunner.addArg("rcs");
-        Path dest = paths.getGvmPath().resolve("lib"+projectConfiguration.getAppName()+".a");
-        linkRunner.addArg(dest.toString());
-        linkRunner.addArg(getProjectObjectFile().toString());
-        linkRunner.addArgs(getAdditionalObjectFiles());
-        linkRunner.setInfo(true);
-        linkRunner.setLogToFile(true);
-        int result = linkRunner.runProcess("archive");
-        return result == 0;
-    }
-
     private String getTargetArch() {
         return projectConfiguration.getTargetTriplet().getArch();
     }

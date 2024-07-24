@@ -326,12 +326,12 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      * @throws InterruptedException
      */
     @Override
-    public boolean createStaticLib() throws IOException, InterruptedException {
+    public final boolean createStaticLib() throws IOException, InterruptedException {
         String appName = projectConfiguration.getAppName();
         Path gvmPath = paths.getGvmPath();
         ProcessRunner createStaticLibRunner = new ProcessRunner(getStaticLinker());
         createStaticLibRunner.addArg(getStaticLinkerArgs());
-        createStaticLibRunner.addArgs("/tmp/lib/"+appName+".a");
+        createStaticLibRunner.addArgs("/tmp/lib"+appName+".a");
         createStaticLibRunner.addArg(getProjectObjectFile().toString());
         createStaticLibRunner.setInfo(true);
         createStaticLibRunner.setLogToFile(true);
