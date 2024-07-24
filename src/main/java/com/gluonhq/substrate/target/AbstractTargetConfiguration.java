@@ -329,18 +329,10 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     public boolean createStaticLib() throws IOException, InterruptedException {
         String appName = projectConfiguration.getAppName();
         Path gvmPath = paths.getGvmPath();
-        Path objectFile = getProjectObjectFile();
-
         ProcessRunner createStaticLibRunner = new ProcessRunner(getStaticLinker());
         createStaticLibRunner.addArg(getStaticLinkerArgs());
-        Path gvmAppPath = gvmPath.resolve(appName);
-        createStaticLibRunner.addArgs("/tmp/libfoo.a");
+        createStaticLibRunner.addArgs("/tmp/lib/"+appName+".a");
         createStaticLibRunner.addArg(getProjectObjectFile().toString());
-        List<String> javaLibs = getStaticJavaLibs();
-        String libPath = getStaticJDKLibPaths().get(0).toString();
-        for (String javaLib : javaLibs) {
-           createStaticLibRunner.addArgs(libPath+"/lib"+javaLib+".a"); 
-        }
         createStaticLibRunner.setInfo(true);
         createStaticLibRunner.setLogToFile(true);
         int result = createStaticLibRunner.runProcess("archive");
