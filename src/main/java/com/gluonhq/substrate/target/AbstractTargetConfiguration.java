@@ -103,13 +103,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     protected final boolean crossCompile;
 
     private final List<String> defaultAdditionalSourceFiles = Collections.singletonList("launcher.c");
-    private final List<Lib> defaultStaticJavaLibs = List.of(
-//            Lib.of("java"), Lib.of("nio"), Lib.of("zip"), Lib.of("net"),
-//            Lib.of("prefs"),
-//            Lib.of("j2pkcs11"), Lib.upTo(11, "sunec"), Lib.of("jaas"),
-//            Lib.of("extnet"), 
-            Lib.of("vmone"), Lib.of("z")
-    );
+    private final List<String> JDK_LIBS = List.of("vmone");
+
 
     AbstractTargetConfiguration(ProcessPaths paths, InternalProjectConfiguration configuration) {
         this.projectConfiguration = configuration;
@@ -199,7 +194,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
     @Override
     public boolean link() throws IOException, InterruptedException {
         compileAdditionalSources();
-        ensureClibs();
 
         String appName = projectConfiguration.getAppName();
         Path gvmPath = paths.getGvmPath();
@@ -227,7 +221,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
                 projectConfiguration.isUsePrismSW()));
 
         linkRunner.addArgs(getTargetSpecificLinkOutputFlags());
-
         linkRunner.addArgs(getLinkerLibraryPathFlags());
         linkRunner.addArgs(getNativeLibsLinkFlags());
         linkRunner.addArgs(projectConfiguration.getLinkerArgs());
@@ -441,14 +434,6 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         }
     }
 
-    /*
-     * Make sure the clibraries needed for linking are available for this particular configuration.
-     * The clibraries path is available by default in GraalVM, but the directory for cross-platform libs may
-     * not exist. In that case, retrieve the libs from our download site.
-     */
-    private void ensureClibs() throws IOException {
-    }
-
     /**
      * Generates the library search path arguments to be added to the linker.
      *
@@ -472,7 +457,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      * @return a list of Paths to add to the library search path
      * @throws IOException
      */
-    protected List<Path> getLinkerLibraryPaths() throws IOException {
+    protected final List<Path> getLinkerLibraryPaths() throws IOException {
         List<Path> linkerLibraryPaths = new ArrayList<>();
         if (projectConfiguration.isUseJavaFX()) {
             linkerLibraryPaths.add(fileDeps.getJavaFXSDKLibsPath());
@@ -930,8 +915,8 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
      * @return a List of Java libraries that will be understood by the host-specific
      * linker when creating images for the specific target.
      */
-    List<String> getStaticJavaLibs() {
-        return filterApplicableLibs(defaultStaticJavaLibs);
+    final List<String> getStaticJavaLibs() {
+        return JDK_LIBS;
     }
 
     /**
@@ -1034,7 +1019,7 @@ public abstract class AbstractTargetConfiguration implements TargetConfiguration
         return Collections.emptyList();
     }
 
-    protected List<Path> getStaticJDKLibPaths() throws IOException {
+    protected final List<Path> getStaticJDKLibPaths() throws IOException {
         return List.of(fileDeps.getJavaSDKLibsPath());
     }
 

@@ -52,13 +52,6 @@ public class WindowsTargetConfiguration extends AbstractTargetConfiguration {
             Lib.of("version"), Lib.of("ws2_32"), Lib.of("winhttp"), Lib.of("ncrypt"),
             Lib.of("crypt32"), Lib.from(20, "mswsock")
     );
-    private static final List<Lib> staticJavaLibs = List.of(
-            Lib.of("j2pkcs11"), Lib.of("java"), Lib.of("net"), Lib.of("nio"),
-            Lib.of("prefs"), Lib.upTo(20, "fdlibm"), Lib.upTo(11, "sunec"), Lib.of("zip"),
-            Lib.of("sunmscapi"), Lib.from(21, "extnet")
-    );
-    private static final List<String> staticJvmLibs = Arrays.asList(
-            "jvm", "libchelper");
 
     private static final List<String> javaFxWindowsLibs = List.of(
             "comdlg32", "dwmapi", "gdi32", "imm32", "shell32",
@@ -140,18 +133,6 @@ public class WindowsTargetConfiguration extends AbstractTargetConfiguration {
     String getLinkOutputName() {
         String appName = projectConfiguration.getAppName();
         return appName + (projectConfiguration.isSharedLibrary() ? ".dll" : ".exe");
-    }
-
-    @Override
-    List<String> getStaticJavaLibs() {
-        return filterApplicableLibs(staticJavaLibs);
-    }
-
-    @Override
-    List<String> getOtherStaticLibs() {
-        List<String> libs = new ArrayList<>(staticJvmLibs);
-        libs.addAll(filterApplicableLibs(javaWindowsLibs));
-        return libs;
     }
 
     @Override

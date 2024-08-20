@@ -89,7 +89,7 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     private final List<String> linkFlags = Arrays.asList("-target",
             ANDROID_TRIPLET + ANDROID_MIN_SDK_VERSION, "-fPIC",
             "-Wl,--rosegment,--gc-sections,-z,noexecstack", "-shared",
-            "-landroid", "-llog", "-static-libstdc++");
+            "-landroid", "-llog", "-lz", "-static-libstdc++");
     private final List<String> javafxLinkFlags = new ArrayList<>(Arrays.asList(WL_WHOLE_ARCHIVE,
             "-lprism_es2_monocle", "-lglass_monocle", "-ljavafx_font_freetype", "-ljavafx_iio", WL_NO_WHOLE_ARCHIVE,
             "-lGLESv2", "-lEGL", "-lfreetype"));
@@ -282,11 +282,11 @@ public class AndroidTargetConfiguration extends PosixTargetConfiguration {
     List<String> getTargetSpecificLinkFlags(boolean useJavaFX, boolean usePrismSW) {
         if (!useJavaFX) return linkFlags;
         List<String> answer = new ArrayList<>();
-        answer.addAll(linkFlags);
         if (projectConfiguration.hasWeb()) {
             javafxLinkFlags.addAll(Arrays.asList(WL_WHOLE_ARCHIVE, javafxWebLib, WL_NO_WHOLE_ARCHIVE));
         }
         answer.addAll(javafxLinkFlags);
+        answer.addAll(linkFlags);
         return answer;
     }
 

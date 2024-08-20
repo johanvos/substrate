@@ -211,12 +211,11 @@ public class InternalProjectConfiguration {
         return Constants.USER_SUBSTRATE_PATH
                 .resolve("javaStaticSdk")
                 .resolve(getJavaStaticSdkVersion())
-                .resolve(getTargetTriplet().getOsArch())
-                .resolve(usesJDK11() ? Constants.DEFAULT_JAVASDK_PATH11 : Constants.DEFAULT_JAVASDK_PATH);
+                .resolve(getTargetTriplet().getOsArch());
     }
 
     private Path getDefaultJavaStaticLibsPath() {
-        return getDefaultJavaStaticPath().resolve("lib").resolve("static");
+        return getDefaultJavaStaticPath().resolve("lib");
     }
 
     /**

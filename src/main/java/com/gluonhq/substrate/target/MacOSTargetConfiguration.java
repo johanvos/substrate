@@ -57,13 +57,6 @@ public class MacOSTargetConfiguration extends DarwinTargetConfiguration {
             "ApplicationServices", "OpenGL", "QuartzCore", "Security", "Accelerate"
     );
 
-    private static final List<Lib> staticJavaLibs = Arrays.asList(
-            Lib.of("java"), Lib.of("nio"), Lib.of("zip"), Lib.of("net"),
-            Lib.of("prefs"), Lib.of("j2pkcs11"), Lib.upTo(20, "fdlibm"), Lib.upTo(11, "sunec"),
-            Lib.of("extnet"), Lib.of("vmone")
-    );
-    private static final List<String> staticJvmLibs = Arrays.asList(
-    );
     private static final List<String> staticJavaFxLibs = Arrays.asList(
             "glass", "javafx_font", "javafx_iio", "prism_es2"
     );
@@ -140,16 +133,6 @@ public class MacOSTargetConfiguration extends DarwinTargetConfiguration {
         }
 
         return linkFlags;
-    }
-
-    @Override
-    List<String> getStaticJavaLibs() {
-        return filterApplicableLibs(staticJavaLibs);
-    }
-
-    @Override
-    List<String> getOtherStaticLibs() {
-        return staticJvmLibs;
     }
 
     @Override

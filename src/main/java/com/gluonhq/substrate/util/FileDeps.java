@@ -357,7 +357,7 @@ public final class FileDeps {
     private void downloadJavaZip(String target) throws IOException {
         Logger.logInfo("Downloading Java Static Libs...");
         String javaZip = Strings.substitute(JAVA_STATIC_ZIP, Map.of(
-            "staticjdk", configuration.usesJDK11() ? Constants.DEFAULT_JAVASDK_PATH11 : Constants.DEFAULT_JAVASDK_PATH,
+            "staticjdk", Constants.DEFAULT_VMONE_PATH,
             "version", configuration.getJavaStaticSdkVersion(),
             "target", target));
         FileOps.downloadAndUnzip(JAVA_STATIC_URL + javaZip,
